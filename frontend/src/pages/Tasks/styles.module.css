@@ -1,0 +1,27 @@
+.home {
+    flex: 1;
+    background-color: #836FFF;
+    margin-bottom: 20px;
+}
+
+.home h4 {
+    margin-top: 10px
+}
+
+.tasks {
+    border: 2px solid #836FFF;
+    text-align: center;
+    padding: 10px 5px;
+}
+
+.tasks_header {
+    margin-bottom: 20px;
+}
+
+.tasks_header h4 {
+    font-size: 35px;
+}
+
+.taskTitle {
+    margin-left: 40px;
+}

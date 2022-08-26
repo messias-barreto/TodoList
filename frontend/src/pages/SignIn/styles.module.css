@@ -1,0 +1,22 @@
+.login {
+    border: 2px solid #000;
+    padding: 20px;
+}
+
+.title {
+    margin-top: 8rem;
+    margin-bottom: 30px;
+    font-size: 40px;
+    font-family: sans-serif;
+    color: #836FFF;
+}
+
+.button {
+    width: 15rem;
+}
+
+.register {
+    margin-top: 3rem;
+    font-size: 15px;
+    text-align: center;
+}

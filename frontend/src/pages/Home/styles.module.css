@@ -1,0 +1,15 @@
+body {
+    background-color: #836FFF;
+}
+
+.home {
+    flex: 1;
+    background-color: #836FFF;
+    margin-bottom: 20px;
+}
+
+.works {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-decoration: none;
+}
