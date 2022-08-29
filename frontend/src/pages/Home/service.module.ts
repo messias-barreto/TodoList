@@ -9,7 +9,7 @@ interface IWork {
     user_id: string | undefined;
 }
 
-export const getAllWorks = async (user: string = 'null') => {
+export const getAllWorks = async (user: string = 'null', page: number = 1) => {
     const token = await getToken();
     const headers = {
         headers: { 'Authorization': `Bearer ${token}` }

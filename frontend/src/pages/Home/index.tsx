@@ -1,18 +1,15 @@
 import { useContext, useEffect, useState } from "react";
-import { Button, Col, Container, Form, Offcanvas, ProgressBar, Row } from "react-bootstrap";
+import { Button, Col, Container, Form, Offcanvas, Pagination, ProgressBar, Row } from "react-bootstrap";
 import ICard from "../../components/Card";
 import Menu from "../../components/Menu";
 import Modal from "../../components/Modal";
 import styles from "./styles.module.css";
-import axios from "axios";
 import Header from "../../components/Header";
-import { Link } from "react-router-dom";
 import { AuthContext } from "../../Contexts/Auth/AuthContext";
-import { getToken } from "../../hooks/localstorage";
 import { addWork, getAllWorks, removeWork } from "./service.module";
 import Message from "../../components/Message";
 import IconBtnTaskRemove from '../../utils/icons/btn-task-remove.svg';
-const url = 'http://127.0.0.1:3200';
+import IPagination from "../../components/Pagination";
 
 interface IWork {
     id?: string;
@@ -25,14 +22,16 @@ interface IWork {
 
 export default function Home() {
     const [works, setWorks] = useState([]);
-    const [tasks, setTasks] = useState([]);
-    const [showInfo, setShowInfo] = useState(false);
+    const [filterWorks, setFilterWorks] = useState([]);
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [message, setMessage] = useState('');
     const [showMessage, setShowMessage] = useState(false);
-    const [showStatusMessage, setShowStatusMessage] = useState('success')
-    const [remove, setRemove] = useState(false)
+    const [showStatusMessage, setShowStatusMessage] = useState('success');
+    const [remove, setRemove] = useState(false);
+
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
     const user = useContext(AuthContext);
 
     const handleGetTotalPercent = (compleate: number, total: number) => {
@@ -44,6 +43,21 @@ export default function Home() {
         return result
     }
 
+    const handleGetPaginate = async () => {
+        let interval = page * 6;
+        let start = interval - 6;
+        let filtrado: never[] = [];
+
+        works.forEach((value, index) => {
+            if (index >= start && index < interval) {
+                filtrado.push(value)
+            }
+        });
+
+        setFilterWorks(filtrado);
+        setTotalPages(Math.ceil(works.length / 6));
+    }
+
     const validateMessage = (message: string, status: string, show: boolean) => {
         setMessage(message);
         setShowStatusMessage(status);
@@ -51,20 +65,12 @@ export default function Home() {
     }
 
     const handleWorks = async () => {
-        const works = await getAllWorks(user.user?.id).then(res => {
+        const works = await getAllWorks(user.user?.id, page).then(res => {
             return res.data
         })
 
         setWorks(works);
     }
-
-    // const handleTasks = async (id: string) => {
-    //     const token = await getToken();
-    //     const headers = {
-    //         headers: { 'Authorization': `Bearer ${token}` }
-    //     }
-    //     await axios.get(`${url}/tasks/${id}`, headers).then(res => setTasks(res.data.data))
-    // }
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         validateMessage('', '', false);
@@ -97,6 +103,10 @@ export default function Home() {
     useEffect(() => {
         handleWorks()
     }, [])
+
+    useEffect(() => {
+        handleGetPaginate()
+    }, [works, page])
     return (
         <>
             <Menu />
@@ -112,7 +122,7 @@ export default function Home() {
                     <Row>
                         <Col className="d-flex flex-row-reverse bd-highlight">
 
-                            <Button variant={`${remove === true ? "outline-danger" : "outline-success" }`} style={{ marginLeft: 10 }}
+                            <Button variant={`${remove === true ? "outline-danger" : "outline-success"}`} style={{ marginLeft: 10 }}
                                 onClick={() => setRemove(remove === true ? false : true)}>
                                 <img src={IconBtnTaskRemove} />
                             </Button>
@@ -141,17 +151,12 @@ export default function Home() {
                                     </Button>
                                 </Form>
                             </Modal>
-
-                            {/* <Button variant="outline-danger" 
-                                    onClick={() => setRemove(remove === true ? false : true)}>
-                                        <img src={IconBtnTaskRemove} />
-                            </Button> */}
                         </Col>
                     </Row>
 
                     <Row style={{ marginTop: 20 }}>
                         {
-                            works.map((work: IWork) =>
+                            filterWorks.map((work: IWork) =>
                                 <Col md={4} className={styles.works} key={work.id}>
                                     <ICard key={work.id}
                                         link={`/tasks/${work.id}`}
@@ -169,6 +174,24 @@ export default function Home() {
                                                     now={handleGetTotalPercent(work.qtd_complete, work.qtd_task)}
                                                     label={`${handleGetTotalPercent(work.qtd_complete, work.qtd_task)?.toFixed(1)}%`} />
                                         } />
+                                </Col>
+                            )
+                        }
+
+                        {
+                            works.length === 0 && (
+                                <Col className="d-flex justify-content-center align-self-end">
+                                    <h3> Você não possui trabalhos cadastrados!!</h3>
+                                </Col>
+                            )
+                        }
+                    </Row>
+
+                    <Row>
+                        {
+                            totalPages > 1 && (
+                                <Col className="d-flex justify-content-center align-self-end">
+                                    <IPagination totalPages={totalPages} page={page} selectPage={setPage} />
                                 </Col>
                             )
                         }
